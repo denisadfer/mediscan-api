@@ -13,10 +13,10 @@ con.connect(function (err) {
 	console.log('Connected to Database!');
 });
 
-const insertUser = (email, password) => {
+const insertUser = (username, email, password) => {
 	con.query(
-		'INSERT INTO users (email, password) VALUES (?,?)',
-		[email, password],
+		'INSERT INTO users (username, email, password) VALUES (?,?,?)',
+		[username, email, password],
 		function (err, result) {
 			if (err) throw err;
 			return result;
@@ -40,8 +40,17 @@ const selectPosts = con.query(
 	}
 );
 
+const selectHistory = con.query(
+	'SELECT * FROM history',
+	function (err, result, fields) {
+		if (err) throw err;
+		return result;
+	}
+);
+
 module.exports = {
 	insertUser,
 	selectUser,
 	selectPosts,
+	selectHistory,
 };

@@ -1,65 +1,19 @@
 const { nanoid } = require('nanoid');
-const { selectUser, insertUser, selectPosts } = require('./connectdb');
+const {
+	selectUser,
+	insertUser,
+	selectPosts,
+	selectHistory,
+} = require('./connectdb');
 const jwt = require('jsonwebtoken');
 require('dotenv').config();
 const bcrypt = require('bcrypt');
 
-// const addData = (request, h) => {
-// 	const { name, address, phone } = request.payload;
-// 	const id = nanoid(16);
-// 	insert(id, name, address, phone);
-// 	const response = h.response({
-// 		status: 'success',
-// 		message: 'data inserted',
-// 		data: {
-// 			userId: id,
-// 		},
-// 	});
-// 	response.code(201);
-// 	return response;
-// };
-
-// const getAllDatas = (request, h) => {
-// 	const response = h.response({
-// 		status: 'success',
-// 		message: 'get all data from test table',
-// 		data: {
-// 			user: select._results[0],
-// 		},
-// 	});
-// 	response.code(200);
-// 	return response;
-// };
-
-// const getDataById = (request, h) => {
-// 	const { id } = request.params;
-// 	const sr = select._results[0];
-// 	const user = sr.filter((d) => d.id == id)[0];
-// 	if (user !== undefined) {
-// 		return h
-// 			.response({
-// 				status: 'success',
-// 				message: 'get data by id from test table',
-// 				data: {
-// 					user,
-// 				},
-// 			})
-// 			.code(200);
-// 	} else {
-// 		return h
-// 			.response({
-// 				status: 'fail',
-// 				message: 'data not found',
-// 			})
-// 			.code(404);
-// 	}
-// };
-
 const addUser = async (request, h) => {
 	try {
-		const { email, password } = request.payload;
+		const { username, email, password } = request.payload;
 		const hashedPassword = await bcrypt.hash(password, 10);
-		insertUser(email, hashedPassword);
+		insertUser(username, email, hashedPassword);
 		return h.response({
 			status: 'success',
 			message: 'user added',
@@ -102,7 +56,7 @@ const token = (request, h) => {
 				return h
 					.response({ status: 'fail', message: 'token invalid' })
 					.code(403);
-			const accessToken = generateAccessToken({ email: user.email });
+			const accessToken = generateAccessToken({ userId: user.userId });
 			return h.response({ accessToken: accessToken }).code(200);
 		}
 	);
@@ -110,21 +64,24 @@ const token = (request, h) => {
 };
 
 const login = async (request, h) => {
-	const { email, password } = request.payload;
+	const { username, password } = request.payload;
 	const su = selectUser._results[0];
-	const currentUser = su.filter((u) => u.email === email)[0];
+	const currentUser = su.filter((u) => u.username === username)[0];
 	if (currentUser === undefined) {
-		return h.response({ status: 'fail', message: 'email not found' }).code(404);
+		return h
+			.response({ status: 'fail', message: 'username not found' })
+			.code(404);
 	}
 	try {
 		if (await bcrypt.compare(password, currentUser.password)) {
-			const user = { email: email };
+			const user = { userId: currentUser.id };
 			const accessToken = generateAccessToken(user);
 			const refreshToken = generateRefreshToken(user);
 			refreshTokens.push(refreshToken);
 			return h
 				.response({
-					email: currentUser.email,
+					userId: currentUser.id,
+					username: currentUser.username,
 					accessToken: accessToken,
 					refreshToken: refreshToken,
 				})
@@ -172,6 +129,16 @@ const getPostByEmail = (request, h) => {
 		.code(200);
 };
 
+const getHistoryByUserId = (request, h) => {
+	authenticateToken(request, h, () => {
+		return;
+	});
+	const sh = selectHistory._results[0];
+	return h
+		.response(sh.filter((h) => h.userId === request.user.userId))
+		.code(200);
+};
+
 module.exports = {
 	authenticateToken,
 	getPostByEmail,
@@ -179,4 +146,5 @@ module.exports = {
 	token,
 	login,
 	logout,
+	getHistoryByUserId,
 };
