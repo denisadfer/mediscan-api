@@ -1,37 +1,22 @@
 var mysql = require('mysql');
+require('dotenv').config();
 
 var con = mysql.createConnection({
-	host: 'localhost',
-	user: 'root',
-	password: '',
-	database: 'mediscan',
+	host: process.env.DB_HOST,
+	user: process.env.DB_USER,
+	password: process.env.DB_PASSWORD,
+	database: process.env.DB_DATABASE,
 });
 
-const conn = con.connect(function (err) {
+con.connect(function (err) {
 	if (err) throw err;
 	console.log('Connected to Database!');
 });
 
-const select = con.query('SELECT * FROM test', function (err, result, fields) {
-	if (err) throw err;
-	return result;
-});
-
-const insert = (id, name, address, phone) => {
+const insertUser = (email, password) => {
 	con.query(
-		'INSERT INTO test (id, name, address, phone) VALUES (?,?, ?, ?)',
-		[id, name, address, phone],
-		function (err, result) {
-			if (err) throw err;
-			return result;
-		}
-	);
-};
-
-const insertUser = (username, password) => {
-	con.query(
-		'INSERT INTO users (username, password) VALUES (?,?)',
-		[username, password],
+		'INSERT INTO users (email, password) VALUES (?,?)',
+		[email, password],
 		function (err, result) {
 			if (err) throw err;
 			return result;
@@ -47,9 +32,16 @@ const selectUser = con.query(
 	}
 );
 
+const selectPosts = con.query(
+	'SELECT * FROM posts',
+	function (err, result, fields) {
+		if (err) throw err;
+		return result;
+	}
+);
+
 module.exports = {
-	select,
-	insert,
 	insertUser,
 	selectUser,
+	selectPosts,
 };

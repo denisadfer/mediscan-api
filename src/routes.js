@@ -1,10 +1,4 @@
-const {
-	addData,
-	getAllDatas,
-	getDataById,
-	getPostByUsername,
-	addUser,
-} = require('./handler');
+const { getPostByEmail, addUser } = require('./handler');
 
 const routes = [
 	{
@@ -15,22 +9,7 @@ const routes = [
 	{
 		method: 'GET',
 		path: '/posts',
-		handler: getPostByUsername,
-	},
-	{
-		method: 'POST',
-		path: '/datas',
-		handler: addData,
-	},
-	{
-		method: 'GET',
-		path: '/datas',
-		handler: getAllDatas,
-	},
-	{
-		method: 'GET',
-		path: '/datas/{id}',
-		handler: getDataById,
+		handler: getPostByEmail,
 	},
 ];
 
