@@ -3,6 +3,7 @@ const {
 	selectUser,
 	insertUser,
 	selectPosts,
+	insertHistory,
 	selectHistory,
 } = require('./connectdb');
 const jwt = require('jsonwebtoken');
@@ -119,13 +120,18 @@ function authenticateToken(request, h, next) {
 	});
 }
 
-const getPostByEmail = (request, h) => {
+const addHistory = (request, h) => {
 	authenticateToken(request, h, () => {
 		return;
 	});
-	const sp = selectPosts._results[0];
+	const user_id = request.user.userId;
+	const { result, img_url } = request.payload;
+	insertHistory(user_id, result, img_url);
 	return h
-		.response(sp.filter((post) => post.owner === request.user.email))
+		.response({
+			status: 'success',
+			message: 'history added',
+		})
 		.code(200);
 };
 
@@ -139,6 +145,16 @@ const getHistoryByUserId = (request, h) => {
 		.code(200);
 };
 
+const getPostByEmail = (request, h) => {
+	authenticateToken(request, h, () => {
+		return;
+	});
+	const sp = selectPosts._results[0];
+	return h
+		.response(sp.filter((post) => post.owner === request.user.email))
+		.code(200);
+};
+
 module.exports = {
 	authenticateToken,
 	getPostByEmail,
@@ -146,5 +162,6 @@ module.exports = {
 	token,
 	login,
 	logout,
+	addHistory,
 	getHistoryByUserId,
 };

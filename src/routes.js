@@ -4,6 +4,7 @@ const {
 	token,
 	login,
 	logout,
+	addHistory,
 	getHistoryByUserId,
 } = require('./handler');
 
@@ -32,6 +33,11 @@ const routes = [
 		method: 'GET',
 		path: '/posts',
 		handler: getPostByEmail,
+	},
+	{
+		method: 'POST',
+		path: '/history',
+		handler: addHistory,
 	},
 	{
 		method: 'GET',
