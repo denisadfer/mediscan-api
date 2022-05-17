@@ -141,7 +141,7 @@ const getHistoryByUserId = (request, h) => {
 	});
 	const sh = selectHistory._results[0];
 	return h
-		.response(sh.filter((h) => h.userId === request.user.userId))
+		.response(sh.filter((h) => h.user_id === request.user.userId))
 		.code(200);
 };
 
