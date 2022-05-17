@@ -10,6 +10,13 @@ const {
 
 const routes = [
 	{
+		method: 'GET',
+		path: '/test',
+		handler: (request, h) => {
+			return 'hello world';
+		},
+	},
+	{
 		method: 'POST',
 		path: '/token',
 		handler: token,
