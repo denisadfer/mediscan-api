@@ -65,7 +65,7 @@ const logout = (request, h) => {
 	const token = request.payload.token;
 	const jwtlogout = jwt.sign(token, '', { expiresIn: 1 }, (logout, err) => {
 		if (err) throw err;
-		return h.response({ status: 'success', message: 'logout' }).code(200);
+		return h.response().code(204);
 	});
 	return jwtlogout;
 };
@@ -86,29 +86,41 @@ function authenticateToken(request, h, next) {
 	});
 }
 
-const addHistory = (request, h) => {
-	authenticateToken(request, h, () => {
-		return;
-	});
-	const user_id = request.user.userId;
-	const { result, img_url } = request.payload;
-	insertHistory(user_id, result, img_url);
-	return h
-		.response({
-			status: 'success',
-			message: 'history added',
-		})
-		.code(201);
+const addHistory = async (request, h) => {
+	try {
+		authenticateToken(request, h, () => {
+			return;
+		});
+		const user_id = request.user.userId;
+		const { result, img_url } = request.payload;
+		insertHistory(user_id, result, img_url);
+		return h
+			.response({
+				status: 'success',
+				message: 'history added',
+			})
+			.code(201);
+	} catch (error) {
+		return h
+			.response({ status: 'fail', message: 'history not added' })
+			.code(404);
+	}
 };
 
-const getHistoryByUserId = (request, h) => {
-	authenticateToken(request, h, () => {
-		return;
-	});
-	const sh = selectHistory._results[0];
-	return h
-		.response(sh.filter((h) => h.user_id == request.user.userId))
-		.code(200);
+const getHistoryByUserId = async (request, h) => {
+	try {
+		authenticateToken(request, h, () => {
+			return;
+		});
+		const sh = selectHistory._results[0];
+		return h
+			.response(sh.filter((h) => h.user_id == request.user.userId))
+			.code(200);
+	} catch (error) {
+		return h
+			.response({ status: 'fail', message: 'history not found' })
+			.code(404);
+	}
 };
 
 module.exports = {
