@@ -1,7 +1,5 @@
 const {
-	getPostByEmail,
 	addUser,
-	token,
 	login,
 	logout,
 	addHistory,
@@ -18,11 +16,6 @@ const routes = [
 	},
 	{
 		method: 'POST',
-		path: '/token',
-		handler: token,
-	},
-	{
-		method: 'POST',
 		path: '/users',
 		handler: addUser,
 	},
@@ -35,11 +28,6 @@ const routes = [
 		method: 'DELETE',
 		path: '/logout',
 		handler: logout,
-	},
-	{
-		method: 'GET',
-		path: '/posts',
-		handler: getPostByEmail,
 	},
 	{
 		method: 'POST',

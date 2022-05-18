@@ -32,14 +32,6 @@ const selectUser = con.query(
 	}
 );
 
-const selectPosts = con.query(
-	'SELECT * FROM posts',
-	function (err, result, fields) {
-		if (err) throw err;
-		return result;
-	}
-);
-
 const insertHistory = (user_id, result, img_url) => {
 	con.query(
 		'INSERT INTO history (user_id, result, img_url) VALUES (?,?,?)',
@@ -62,7 +54,6 @@ const selectHistory = con.query(
 module.exports = {
 	insertUser,
 	selectUser,
-	selectPosts,
 	insertHistory,
 	selectHistory,
 };

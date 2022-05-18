@@ -1,8 +1,6 @@
-const { nanoid } = require('nanoid');
 const {
 	selectUser,
 	insertUser,
-	selectPosts,
 	insertHistory,
 	selectHistory,
 } = require('./connectdb');
@@ -27,42 +25,11 @@ const addUser = async (request, h) => {
 	}
 };
 
-let refreshTokens = [];
-
 function generateAccessToken(user) {
 	return jwt.sign(user, process.env.ACCESS_TOKEN_SECRET, {
-		expiresIn: '90m',
+		expiresIn: '1h',
 	});
 }
-
-function generateRefreshToken(user) {
-	return jwt.sign(user, process.env.REFRESH_TOKEN_SECRET);
-}
-
-const token = (request, h) => {
-	const refreshToken = request.payload.token;
-	if (refreshToken === null) {
-		return h.response({ status: 'fail', message: 'token not found' }).code(401);
-	}
-	if (!refreshTokens.includes(refreshToken)) {
-		return h
-			.response({ status: 'fail', message: 'token already used' })
-			.code(403);
-	}
-	const newAccessToken = jwt.verify(
-		refreshToken,
-		process.env.REFRESH_TOKEN_SECRET,
-		(err, user) => {
-			if (err)
-				return h
-					.response({ status: 'fail', message: 'token invalid' })
-					.code(403);
-			const accessToken = generateAccessToken({ userId: user.userId });
-			return h.response({ accessToken: accessToken }).code(200);
-		}
-	);
-	return newAccessToken;
-};
 
 const login = async (request, h) => {
 	const { username, password } = request.payload;
@@ -77,14 +44,11 @@ const login = async (request, h) => {
 		if (await bcrypt.compare(password, currentUser.password)) {
 			const user = { userId: currentUser.id };
 			const accessToken = generateAccessToken(user);
-			const refreshToken = generateRefreshToken(user);
-			refreshTokens.push(refreshToken);
 			return h
 				.response({
 					userId: currentUser.id,
 					username: currentUser.username,
 					accessToken: accessToken,
-					refreshToken: refreshToken,
 				})
 				.code(200);
 		} else {
@@ -98,10 +62,12 @@ const login = async (request, h) => {
 };
 
 const logout = (request, h) => {
-	refreshTokens = refreshTokens.filter(
-		(token) => token !== request.payload.token
-	);
-	return h.response().code(204);
+	const token = request.payload.token;
+	const jwtlogout = jwt.sign(token, '', { expiresIn: 1 }, (logout, err) => {
+		if (err) throw err;
+		return h.response({ status: 'success', message: 'logout' }).code(200);
+	});
+	return jwtlogout;
 };
 
 function authenticateToken(request, h, next) {
@@ -132,7 +98,7 @@ const addHistory = (request, h) => {
 			status: 'success',
 			message: 'history added',
 		})
-		.code(200);
+		.code(201);
 };
 
 const getHistoryByUserId = (request, h) => {
@@ -141,25 +107,13 @@ const getHistoryByUserId = (request, h) => {
 	});
 	const sh = selectHistory._results[0];
 	return h
-		.response(sh.filter((h) => h.user_id === request.user.userId))
-		.code(200);
-};
-
-const getPostByEmail = (request, h) => {
-	authenticateToken(request, h, () => {
-		return;
-	});
-	const sp = selectPosts._results[0];
-	return h
-		.response(sp.filter((post) => post.owner === request.user.email))
+		.response(sh.filter((h) => h.user_id == request.user.userId))
 		.code(200);
 };
 
 module.exports = {
 	authenticateToken,
-	getPostByEmail,
 	addUser,
-	token,
 	login,
 	logout,
 	addHistory,
