@@ -12,11 +12,30 @@ const addUser = async (request, h) => {
 	try {
 		const { username, email, password } = request.payload;
 		const hashedPassword = await bcrypt.hash(password, 10);
-		insertUser(username, email, hashedPassword);
-		return h.response({
-			status: 'success',
-			message: 'user added',
-		});
+		const su = selectUser._results[0];
+		const currentUserUsername = su.filter((u) => u.username === username)[0];
+		const currentUserEmail = su.filter((u) => u.email === email)[0];
+		if (currentUserUsername !== undefined) {
+			return h
+				.response({
+					status: 'fail',
+					message: 'Username already exists',
+				})
+				.code(403);
+		} else if (currentUserEmail !== undefined) {
+			return h
+				.response({
+					status: 'fail',
+					message: 'Email already exists',
+				})
+				.code(403);
+		} else {
+			insertUser(username, email, hashedPassword);
+			return h.response({
+				status: 'success',
+				message: 'user added',
+			});
+		}
 	} catch (error) {
 		return h.response({
 			status: 'fail',
@@ -46,6 +65,8 @@ const login = async (request, h) => {
 			const accessToken = generateAccessToken(user);
 			return h
 				.response({
+					status: 'success',
+					message: 'login success',
 					userId: currentUser.id,
 					username: currentUser.username,
 					accessToken: accessToken,
