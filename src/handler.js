@@ -8,11 +8,20 @@ const jwt = require('jsonwebtoken');
 require('dotenv').config();
 const bcrypt = require('bcrypt');
 
+var mysql = require('mysql');
+
+var con = mysql.createConnection({
+	host: process.env.DB_HOST,
+	user: process.env.DB_USER,
+	password: process.env.DB_PASSWORD,
+	database: process.env.DB_DATABASE,
+});
+
 const addUser = async (request, h) => {
 	try {
 		const { username, email, password } = request.payload;
 		const hashedPassword = await bcrypt.hash(password, 10);
-		const su = selectUser._results[0];
+		const su = await selectUser();
 		const currentUserUsername = su.filter((u) => u.username === username)[0];
 		const currentUserEmail = su.filter((u) => u.email === email)[0];
 		if (currentUserUsername !== undefined) {
@@ -52,8 +61,8 @@ function generateAccessToken(user) {
 
 const login = async (request, h) => {
 	const { username, password } = request.payload;
-	const su = selectUser._results[0];
-	const currentUser = su.filter((u) => u.username === username)[0];
+	const su = await selectUser();
+	let currentUser = su.filter((u) => u.username === username)[0];
 	if (currentUser === undefined) {
 		return h
 			.response({ status: 'fail', message: 'username not found' })
@@ -133,7 +142,7 @@ const getHistoryByUserId = async (request, h) => {
 		authenticateToken(request, h, () => {
 			return;
 		});
-		const sh = selectHistory._results[0];
+		const sh = await selectHistory();
 		return h
 			.response(sh.filter((h) => h.user_id == request.user.userId))
 			.code(200);

@@ -1,7 +1,7 @@
 var mysql = require('mysql');
 require('dotenv').config();
 
-var con = mysql.createConnection({
+let con = mysql.createConnection({
 	host: process.env.DB_HOST,
 	user: process.env.DB_USER,
 	password: process.env.DB_PASSWORD,
@@ -24,13 +24,14 @@ const insertUser = (username, email, password) => {
 	);
 };
 
-const selectUser = con.query(
-	'SELECT * FROM users',
-	function (err, result, fields) {
-		if (err) throw err;
-		return result;
-	}
-);
+function selectUser() {
+	return new Promise((resolve, reject) => {
+		con.query('SELECT * FROM users', (err, result) => {
+			if (err) reject(err);
+			resolve(result);
+		});
+	});
+}
 
 const insertHistory = (user_id, result, img_url) => {
 	con.query(
@@ -43,13 +44,14 @@ const insertHistory = (user_id, result, img_url) => {
 	);
 };
 
-const selectHistory = con.query(
-	'SELECT * FROM history',
-	function (err, result, fields) {
-		if (err) throw err;
-		return result;
-	}
-);
+function selectHistory() {
+	return new Promise((resolve, reject) => {
+		con.query('SELECT * FROM history', (err, result) => {
+			if (err) reject(err);
+			resolve(result);
+		});
+	});
+}
 
 module.exports = {
 	insertUser,
