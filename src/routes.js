@@ -31,8 +31,16 @@ const routes = [
 	},
 	{
 		method: 'POST',
-		path: '/history',
-		handler: addHistory,
+		path: '/upload',
+		options: {
+			payload: {
+				maxBytes: 209715200,
+				output: 'stream',
+				parse: true,
+				multipart: true,
+			},
+			handler: addHistory,
+		},
 	},
 	{
 		method: 'GET',

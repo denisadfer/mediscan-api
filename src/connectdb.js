@@ -33,10 +33,10 @@ function selectUser() {
 	});
 }
 
-const insertHistory = (user_id, result, img_url) => {
+const insertHistory = (user_id, result, img_url, createdAt) => {
 	con.query(
-		'INSERT INTO history (user_id, result, img_url) VALUES (?,?,?)',
-		[user_id, result, img_url],
+		'INSERT INTO history (user_id, result, img_url, createdAt) VALUES (?,?,?,?)',
+		[user_id, result, img_url, createdAt],
 		function (err, result) {
 			if (err) throw err;
 			return result;

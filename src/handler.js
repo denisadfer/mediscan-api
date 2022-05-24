@@ -8,8 +8,17 @@ const jwt = require('jsonwebtoken');
 require('dotenv').config();
 const bcrypt = require('bcrypt');
 
-var mysql = require('mysql');
+//cloud-storage
+const { format } = require('util');
+const { Storage } = require('@google-cloud/storage');
+const storage = new Storage({
+	keyFilename: 'google-cloud-key.json',
+	projectId: 'mediscan-350406',
+});
+const bucket = storage.bucket('mediscan-bucket');
 
+//mysql
+var mysql = require('mysql');
 var con = mysql.createConnection({
 	host: process.env.DB_HOST,
 	user: process.env.DB_USER,
@@ -116,24 +125,66 @@ function authenticateToken(request, h, next) {
 	});
 }
 
+function uploadImage(filename, buffer) {
+	return new Promise((resolve, reject) => {
+		const blob = bucket.file(filename);
+		const blobStream = blob.createWriteStream({
+			resumable: false,
+		});
+		blobStream
+			.on('finish', () => {
+				const publicUrl = format(
+					`https://storage.googleapis.com/${bucket.name}/${blob.name}`
+				);
+				resolve(publicUrl);
+			})
+			.on('error', () => {
+				reject(`Unable to upload image, something went wrong`);
+			})
+			.end(buffer);
+	});
+}
+
 const addHistory = async (request, h) => {
+	const { result } = request.payload;
+	const myFile = request.payload.file;
+	const date = new Date();
+	const dateNow = new Date().toISOString().slice(0, 19).replace('T', ' ');
+	const today =
+		'' +
+		date.getDate() +
+		(date.getMonth() + 1) +
+		date.getFullYear() +
+		date.getHours() +
+		date.getMinutes() +
+		date.getSeconds();
+	const filename = today + myFile.hapi.filename;
+	const buffer = myFile._data;
 	try {
 		authenticateToken(request, h, () => {
 			return;
 		});
 		const user_id = request.user.userId;
-		const { result, img_url } = request.payload;
-		insertHistory(user_id, result, img_url);
-		return h
-			.response({
-				status: 'success',
-				message: 'history added',
-			})
-			.code(201);
-	} catch (error) {
-		return h
-			.response({ status: 'fail', message: 'history not added' })
-			.code(404);
+		// await processFile(req, res);
+		if (!filename) {
+			return res.response({ status: 'fail', message: 'file not uploaded' });
+		}
+		const publicUrl = await uploadImage(filename, buffer);
+		insertHistory(user_id, result, publicUrl, dateNow);
+		return h.response({
+			status: 'success',
+			message: 'file uploaded',
+			url: publicUrl,
+		});
+	} catch (err) {
+		if (err.code == 'LIMIT_FILE_SIZE') {
+			return h.response({
+				message: 'File size cannot be larger than 2MB!',
+			});
+		}
+		return h.response({
+			message: `Could not upload the file: ${err}`,
+		});
 	}
 };
 
