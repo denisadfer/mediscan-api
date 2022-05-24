@@ -158,7 +158,7 @@ const addHistory = async (request, h) => {
 		date.getHours() +
 		date.getMinutes() +
 		date.getSeconds();
-	const filename = today + myFile.hapi.filename;
+	const filename = today + '.png';
 	const buffer = myFile._data;
 	try {
 		authenticateToken(request, h, () => {
