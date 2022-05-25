@@ -31,7 +31,7 @@ const routes = [
 	},
 	{
 		method: 'POST',
-		path: '/upload',
+		path: '/history',
 		options: {
 			payload: {
 				maxBytes: 209715200,

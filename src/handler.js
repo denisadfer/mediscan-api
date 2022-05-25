@@ -13,18 +13,9 @@ const { format } = require('util');
 const { Storage } = require('@google-cloud/storage');
 const storage = new Storage({
 	keyFilename: 'google-cloud-key.json',
-	projectId: 'mediscan-350406',
+	projectId: 'astute-house-351305',
 });
 const bucket = storage.bucket('mediscan-bucket');
-
-//mysql
-var mysql = require('mysql');
-var con = mysql.createConnection({
-	host: process.env.DB_HOST,
-	user: process.env.DB_USER,
-	password: process.env.DB_PASSWORD,
-	database: process.env.DB_DATABASE,
-});
 
 const addUser = async (request, h) => {
 	try {
@@ -152,9 +143,10 @@ const addHistory = async (request, h) => {
 	const dateNow = new Date().toISOString().slice(0, 19).replace('T', ' ');
 	const today =
 		'' +
-		date.getDate() +
-		(date.getMonth() + 1) +
 		date.getFullYear() +
+		(date.getMonth() + 1) +
+		date.getDate() +
+		'_' +
 		date.getHours() +
 		date.getMinutes() +
 		date.getSeconds();
@@ -165,7 +157,6 @@ const addHistory = async (request, h) => {
 			return;
 		});
 		const user_id = request.user.userId;
-		// await processFile(req, res);
 		if (!filename) {
 			return res.response({ status: 'fail', message: 'file not uploaded' });
 		}
@@ -177,11 +168,6 @@ const addHistory = async (request, h) => {
 			url: publicUrl,
 		});
 	} catch (err) {
-		if (err.code == 'LIMIT_FILE_SIZE') {
-			return h.response({
-				message: 'File size cannot be larger than 2MB!',
-			});
-		}
 		return h.response({
 			message: `Could not upload the file: ${err}`,
 		});

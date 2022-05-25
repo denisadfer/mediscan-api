@@ -24,7 +24,7 @@ const insertUser = (username, email, password) => {
 	);
 };
 
-function selectUser() {
+const selectUser = () => {
 	return new Promise((resolve, reject) => {
 		con.query('SELECT * FROM users', (err, result) => {
 			if (err) reject(err);
@@ -44,7 +44,7 @@ const insertHistory = (user_id, result, img_url, createdAt) => {
 	);
 };
 
-function selectHistory() {
+const selectHistory = () => {
 	return new Promise((resolve, reject) => {
 		con.query('SELECT * FROM history', (err, result) => {
 			if (err) reject(err);
