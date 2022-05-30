@@ -96,6 +96,7 @@ Start the server on production
 ```http
   PUT /users
 ```
+**Authorization** Bearer {token}
 
 | Request | Type     | Description                       |
 | :-------- | :------- | :-------------------------------- |
@@ -108,6 +109,7 @@ Start the server on production
 ```http
   PUT /users/changePassword
 ```
+**Authorization** Bearer {token}
 
 | Request | Type     | Description                       |
 | :-------- | :------- | :-------------------------------- |
@@ -119,6 +121,7 @@ Start the server on production
 ```http
   POST /history
 ```
+**Authorization** Bearer {token}
 
 | Request | Type     | Description                       |
 | :-------- | :------- | :-------------------------------- |
@@ -130,11 +133,14 @@ Start the server on production
 ```http
   GET /history
 ```
+**Authorization** Bearer {token}
+
 #### Delete History By Id
 
 ```http
   DELETE /history/{id}
 ```
+**Authorization** Bearer {token}
 
 | Parameter | Type     | Description                       |
 | :-------- | :------- | :-------------------------------- |
