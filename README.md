@@ -55,3 +55,88 @@ Start the server on production
 ```bash
   npm run start-prod
 ```
+
+## API Reference
+
+#### Register User
+
+```http
+  POST /users
+```
+
+| Request | Type     | Description                |
+| :-------- | :------- | :------------------------- |
+| `username` | `string` | **Required** |
+| `email` | `string` | **Required** |
+| `password` | `string` | **Required** |
+
+#### Login User
+
+```http
+  POST /login
+```
+
+| Request | Type     | Description                       |
+| :-------- | :------- | :-------------------------------- |
+| `username`      | `string` | **Required** |
+| `password` | `string` | **Required** |
+
+#### Logout User
+
+```http
+  POST /logout
+```
+
+| Request | Type     | Description                       |
+| :-------- | :------- | :-------------------------------- |
+| `token` | `string` | **Required** |
+
+#### Update User Profile
+
+```http
+  PUT /users
+```
+
+| Request | Type     | Description                       |
+| :-------- | :------- | :-------------------------------- |
+| `username` | `string` | **Required** |
+| `email` | `string` | **Required** |
+| `password` | `string` | **Required** |
+
+#### Change User Password
+
+```http
+  PUT /users/changePassword
+```
+
+| Request | Type     | Description                       |
+| :-------- | :------- | :-------------------------------- |
+| `password` | `string` | **Required** |
+| `newPassword` | `string` | **Required** |
+
+#### Add History Data
+
+```http
+  POST /history
+```
+
+| Request | Type     | Description                       |
+| :-------- | :------- | :-------------------------------- |
+| `result` | `string` | **Required** |
+| `file` | `file (image)` | **Required** |
+
+#### Get History By UserId
+
+```http
+  GET /history
+```
+#### Delete History By Id
+
+```http
+  DELETE /history/{id}
+```
+
+| Parameter | Type     | Description                       |
+| :-------- | :------- | :-------------------------------- |
+| `id` | `string` | **Required** |
+
