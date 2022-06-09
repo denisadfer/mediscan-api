@@ -84,6 +84,7 @@ const login = async (request, h) => {
 					message: 'login success',
 					userId: currentUser.id,
 					username: currentUser.username,
+					email: currentUser.email,
 					accessToken: accessToken,
 				})
 				.code(200);
